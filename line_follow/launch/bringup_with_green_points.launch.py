@@ -79,5 +79,5 @@ def generate_launch_description():
         gzclient_launch,
         robot_state_publisher,
         spawn_entity,
-        line_follower_node
+        line_follower_node,
     ])
