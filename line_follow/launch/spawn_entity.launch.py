@@ -39,11 +39,15 @@ def generate_launch_description():
             '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
             '/model/robot/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            '/camera@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
         ],
         output='screen',
         parameters=[{'use_sim_time': True}],
         remappings=[
             ('/model/robot/tf', '/tf'), 
+            ('/camera', '/camera/image_raw'),
+            ('/camera_info', '/camera/camera_info'),
         ]
     )
 
