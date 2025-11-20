@@ -11,9 +11,6 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(gazebo_ros REQUIRED)
-find_package(robot_state_publisher REQUIRED)
-find_package(turtlebot3_description REQUIRED)
 find_package(xacro REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(cv_bridge REQUIRED)
@@ -58,17 +55,6 @@ ament_target_dependencies(line_follow_node
   tf2_geometry_msgs
 )
 
-# Goal Publisher Node
-# add_executable(goal_publisher_node src/goal_publisher_node.cpp)
-# ament_target_dependencies(goal_publisher_node
-#   rclcpp
-#   geometry_msgs
-#   nav2_msgs
-#   rclcpp_action
-#   tf2
-#   tf2_geometry_msgs
-# )
-
 add_executable(waypoint_selector_node src/waypoint_selector_node.cpp)
 ament_target_dependencies(waypoint_selector_node
   rclcpp
@@ -91,7 +77,6 @@ ament_target_dependencies(green_point_navigator_node
 
 install(TARGETS
   line_follow_node
-  # goal_publisher_node
   waypoint_selector_node
   green_point_navigator_node
   DESTINATION lib/${PROJECT_NAME}
