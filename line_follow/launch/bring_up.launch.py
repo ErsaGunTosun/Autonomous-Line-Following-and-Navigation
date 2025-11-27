@@ -13,9 +13,9 @@ import os
 def generate_launch_description():
     line_follow_dir = get_package_share_directory('line_follow')
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
-    world_path = os.path.join(line_follow_dir, 'worlds', 'line_and_points.world')
-    rviz_config_path = os.path.join(line_follow_dir, 'rviz', 'tb3.rviz')
+    slam_pkg = get_package_share_directory("slam_toolbox")
 
+    world_path = os.path.join(line_follow_dir, 'worlds', 'line_and_points.world')
     maps_dir = os.path.join(line_follow_dir, 'maps')
     map_save_path = os.path.join(maps_dir, 'line_map') 
     saved_map_yaml = os.path.join(maps_dir, 'line_map.yaml')
@@ -24,6 +24,11 @@ def generate_launch_description():
         get_package_share_directory('line_follow'),
         'config',
         'slam_params.yaml'
+    )
+    rviz_config_path = os.path.join(
+        line_follow_dir, 
+        'rviz', 
+        'rviz_config.rviz'
     )
     
     nav2_config_path = os.path.join(
@@ -73,6 +78,36 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
+    slam_node = Node(
+        package='slam_toolbox',
+        executable='async_slam_toolbox_node',
+        name='slam_toolbox',
+        output='screen',
+        parameters=[
+            slam_config_path, 
+            {'use_sim_time': True}
+        ],
+    )
+     
+
+    slam = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(slam_pkg,"launch","online_async_launch.py")    
+            ),
+            launch_arguments={
+                'use_sim_time': 'True',
+                'slam_params_file': slam_config_path,
+            }.items()
+    )
+
+    rviz_node = Node(
+            package="rviz2",
+            executable="rviz2",
+            name="rviz2",
+            output="screen",
+            arguments=["-d", rviz_config_path] 
+    )
+
 
     return LaunchDescription([
         gzserver_launch,
@@ -80,4 +115,6 @@ def generate_launch_description():
         robot_state_publisher,
         spawn_entity,
         line_follower_node,
+        slam,
+        rviz_node,
     ])
