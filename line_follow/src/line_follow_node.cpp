@@ -22,11 +22,8 @@ class LineFollower : public rclcpp::Node
 public:
   LineFollower() : Node("line_follower")
   {
-    RCLCPP_INFO(this->get_logger(), "Line Follower Node baslatiliyor. 3 saniye bekleniyor...");
-
     publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
-
-    start_timer_ = this->create_wall_timer(3s, std::bind(&LineFollower::start_operations, this));
+    start_timer_ = this->create_wall_timer(100ms, std::bind(&LineFollower::start_operations, this));
 
     waypoints_file_path_ = "/tmp/line_follow_waypoints.txt";
 
@@ -77,7 +74,7 @@ private:
   void start_operations()
   {
       start_timer_.reset(); 
-      RCLCPP_INFO(this->get_logger(), "Line Follower: Robot hareket etmeye hazir. Islem baslatiliyor.");
+      RCLCPP_INFO(this->get_logger(), "Line Follower Started!");
       
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
         "/camera/image_raw", 10,
@@ -93,7 +90,6 @@ private:
       if (file.is_open()) {
           file << "# Line Follow Waypoints - Format: x y z qx qy qz qw\n";
           file.close();
-          RCLCPP_INFO(this->get_logger(), "Waypoints dosyası hazırlandı: %s", waypoints_file_path_.c_str());
       }
   }
 
@@ -111,19 +107,12 @@ private:
           return;
       }
       
-      double distance = calculate_distance(last_saved_pose_.pose, current_pose.pose);
+      double distance = sqrt(pow(last_saved_pose_.pose.position.x - current_pose.pose.position.x , 2) + pow(last_saved_pose_.pose.position.y - current_pose.pose.position.y,2));
       if (distance >= min_distance_between_waypoints_) {
           save_waypoint(current_pose);
       }
   }
   
-  double calculate_distance(const geometry_msgs::msg::Pose& pose1, const geometry_msgs::msg::Pose& pose2)
-  {
-      double dx = pose1.position.x - pose2.position.x;
-      double dy = pose1.position.y - pose2.position.y;
-      double dz = pose1.position.z - pose2.position.z;
-      return sqrt(dx*dx + dy*dy + dz*dz);
-  }
   
   void save_waypoint(const geometry_msgs::msg::PoseStamped& pose)
   {
@@ -142,28 +131,21 @@ private:
                << pose.pose.orientation.w << "\n";
           file.close();
       }
-      
-      // RCLCPP_INFO(this->get_logger(), "Waypoint kaydedildi #%zu: (%.2f, %.2f)", 
-      //             waypoints_.size(), pose.pose.position.x, pose.pose.position.y);
   }
 
   void start_shutdown()
   {
-      if (shutdown_process_started_) return;
-      shutdown_process_started_ = true;
+    if (shutdown_process_started_) return;
+    shutdown_process_started_ = true;
 
-      geometry_msgs::msg::Twist stop_msg;
-      stop_msg.linear.x = 0.0;
-      stop_msg.angular.z = 0.0;
-      publisher_->publish(stop_msg);
+    geometry_msgs::msg::Twist stop_msg;
+    stop_msg.linear.x = 0.0;
+    stop_msg.angular.z = 0.0;
+    publisher_->publish(stop_msg);
       
-      RCLCPP_INFO(this->get_logger(), "*****************************************************");
-      RCLCPP_INFO(this->get_logger(), "!!! CIZGI 10 SANiYEDiR KAYIP. PROGRAM TAMAMLANIYOR !!!");
-      RCLCPP_INFO(this->get_logger(), "Toplam %zu waypoint kaydedildi.", waypoints_.size());
-      RCLCPP_INFO(this->get_logger(), "Waypoints dosyası: %s", waypoints_file_path_.c_str());
-      RCLCPP_INFO(this->get_logger(), "*****************************************************");
+    RCLCPP_INFO(this->get_logger(), "CIZGI 10 SANiYEDiR KAYIP. PROGRAM TAMAMLANIYOR");
       
-      countdown_timer_ = this->create_wall_timer(1s, std::bind(&LineFollower::countdown_and_exit, this));
+    countdown_timer_ = this->create_wall_timer(1s, std::bind(&LineFollower::countdown_and_exit, this));
   }
   
   void countdown_and_exit()
@@ -252,16 +234,17 @@ private:
 
     publisher_->publish(twist_msg);
 
-    cv::Mat mask_bgr;
-    cv::cvtColor(mask, mask_bgr, cv::COLOR_GRAY2BGR);
-    if (m.m00 > MIN_CONTOUR_AREA)
-    {
-        cv::circle(roi_img, cv::Point((int)cx, roi_img.rows / 2), 5, cv::Scalar(0, 255, 0), -1);
-        cv::circle(mask_bgr, cv::Point((int)cx, mask_bgr.rows / 2), 5, cv::Scalar(0, 255, 0), -1);
-    }
-    cv::imshow("ROI Görüntüsü", roi_img);
-    cv::imshow("Maskelenmis Cizgi", mask_bgr);
-    cv::waitKey(1);
+    // İMAGE SHOW WITH WINDOW
+    //cv::Mat mask_bgr;
+    //cv::cvtColor(mask, mask_bgr, cv::COLOR_GRAY2BGR);
+    //if (m.m00 > MIN_CONTOUR_AREA)
+    //{
+    //    cv::circle(roi_img, cv::Point((int)cx, roi_img.rows / 2), 5, cv::Scalar(0, 255, 0), -1);
+    //    cv::circle(mask_bgr, cv::Point((int)cx, mask_bgr.rows / 2), 5, cv::Scalar(0, 255, 0), -1);
+    //}
+    //cv::imshow("ROI Görüntüsü", roi_img);
+    //cv::imshow("Maskelenmis Cizgi", mask_bgr);
+    //cv::waitKey(1);
   }
 };
 
