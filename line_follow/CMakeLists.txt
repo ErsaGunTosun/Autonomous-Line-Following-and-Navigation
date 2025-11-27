@@ -63,32 +63,9 @@ ament_target_dependencies(navigator_node
   nav2_msgs      
   std_msgs
 )
-
-add_executable(waypoint_selector_node src/waypoint_selector_node.cpp)
-ament_target_dependencies(waypoint_selector_node
-  rclcpp
-  geometry_msgs
-  nav2_msgs
-  rclcpp_action
-  tf2
-  tf2_geometry_msgs
-)
-
-add_executable(green_point_navigator_node src/green_point_navigator_node.cpp)
-ament_target_dependencies(green_point_navigator_node
-  rclcpp
-  geometry_msgs
-  nav2_msgs
-  rclcpp_action
-  tf2
-  tf2_geometry_msgs
-)
-
 install(TARGETS
   line_follow_node
   navigator_node
-  waypoint_selector_node
-  green_point_navigator_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
