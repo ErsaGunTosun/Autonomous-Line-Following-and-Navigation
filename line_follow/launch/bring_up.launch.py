@@ -14,11 +14,9 @@ def generate_launch_description():
     line_follow_dir = get_package_share_directory('line_follow')
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
     slam_pkg = get_package_share_directory("slam_toolbox")
+    nav2_pkg = get_package_share_directory('nav2_bringup')
 
     world_path = os.path.join(line_follow_dir, 'worlds', 'line_and_points.world')
-    maps_dir = os.path.join(line_follow_dir, 'maps')
-    map_save_path = os.path.join(maps_dir, 'line_map') 
-    saved_map_yaml = os.path.join(maps_dir, 'line_map.yaml')
 
     slam_config_path = os.path.join(
         get_package_share_directory('line_follow'),
@@ -30,7 +28,6 @@ def generate_launch_description():
         'rviz', 
         'rviz_config.rviz'
     )
-    
     nav2_config_path = os.path.join(
         get_package_share_directory('line_follow'),
         'config',
@@ -78,18 +75,6 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
-    slam_node = Node(
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',
-        name='slam_toolbox',
-        output='screen',
-        parameters=[
-            slam_config_path, 
-            {'use_sim_time': True}
-        ],
-    )
-     
-
     slam = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(slam_pkg,"launch","online_async_launch.py")    
@@ -108,6 +93,23 @@ def generate_launch_description():
             arguments=["-d", rviz_config_path] 
     )
 
+    nav2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(nav2_pkg, 'launch', 'navigation_launch.py')
+        ),
+        launch_arguments={
+            'use_sim_time': 'true',
+            'params_file': nav2_config_path
+        }.items()
+    )
+
+    navigator_node = Node(
+        package='line_follow', 
+        executable='navigator_node',
+        name='navigator_node',
+        output='screen',
+        parameters=[{'use_sim_time': True}]
+    )
 
     return LaunchDescription([
         gzserver_launch,
@@ -117,4 +119,6 @@ def generate_launch_description():
         line_follower_node,
         slam,
         rviz_node,
+        nav2,
+        navigator_node
     ])

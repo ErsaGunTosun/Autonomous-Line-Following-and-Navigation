@@ -4,6 +4,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "std_msgs/msg/bool.hpp"
 #include "cv_bridge/cv_bridge.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -24,6 +25,8 @@ public:
   {
     publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
     start_timer_ = this->create_wall_timer(100ms, std::bind(&LineFollower::start_operations, this));
+
+    nav_publisher_ = this->create_publisher<std_msgs::msg::Bool>("/is_task", 10);
 
     waypoints_file_path_ = "/tmp/line_follow_waypoints.txt";
 
@@ -62,6 +65,7 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_subscription_;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr nav_publisher_;
   rclcpp::TimerBase::SharedPtr start_timer_;
   rclcpp::TimerBase::SharedPtr countdown_timer_;
   
@@ -157,7 +161,10 @@ private:
       {
           countdown_timer_.reset();
           RCLCPP_INFO(this->get_logger(), "Kapatma Basarili. Program sonlandirildi.");
-          rclcpp::shutdown();
+
+          auto msg = std_msgs::msg::Bool();
+          msg.data = true;
+          nav_publisher_->publish(msg);
       }
   }
 
