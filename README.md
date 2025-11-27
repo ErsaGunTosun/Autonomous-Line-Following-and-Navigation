@@ -2,7 +2,7 @@
 
 An autonomous navigation system for **TurtleBot3** robots built on **ROS 2 Humble**. This project implements a complete pipeline for line following, waypoint recording, and autonomous navigation using computer vision, SLAM, and Nav2.
 
-## 🚀 Overview
+## Overview
 
 This project enables a TurtleBot3 robot to:
 1. **Follow a red line** using camera-based computer vision
@@ -11,7 +11,7 @@ This project enables a TurtleBot3 robot to:
 
 The system is fully integrated with **Gazebo** simulation and can be adapted for real hardware deployment.
 
-## 🔧 ROS 2 Node Architecture
+## ROS 2 Node Architecture
 
 ### line_follow_node
 
@@ -59,7 +59,7 @@ follow_waypoints (nav2_msgs/action/FollowWaypoints)
 - File I/O: Synchronous read operation
 - Action: Asynchronous send_goal with default options
 
-## 📋 Requirements
+## Requirements
 
 ### System Requirements
 - **ROS 2**: Humble Hawksbill
@@ -81,7 +81,7 @@ follow_waypoints (nav2_msgs/action/FollowWaypoints)
 - **OpenCV** (4.x recommended) - Computer vision library
 - **CMake** 3.8+
 
-## 🏗️ System Architecture
+## System Architecture
 
 ### Node Graph
 
@@ -207,7 +207,7 @@ Odometry Message
   → Result: success/failure
 ```
 
-## ⚙️ Configuration Parameters
+## Configuration Parameters
 
 ### Line Following Constants
 
@@ -311,7 +311,7 @@ map (SLAM frame)
 - `slam_toolbox`: `map → odom` transform
 - `odometry`: `odom → base_link` transform
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 line_follow/
@@ -335,7 +335,7 @@ line_follow/
     └── rviz_config.rviz
 ```
 
-## 🔧 Advanced Customization
+## Advanced Customization
 
 ### Color Detection Tuning
 
